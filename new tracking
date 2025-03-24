@@ -1,0 +1,35 @@
+use linera_sdk::{base::*, Contract, ExecutionError};
+use async_trait::async_trait;
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TrackerState {
+    events: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TrackerMessage {
+    event: String,
+}
+
+pub struct Tracker;
+
+#[async_trait]
+impl Contract for Tracker {
+    type State = TrackerState;
+    type Message = TrackerMessage;
+
+    async fn load() -> Result<Self::State, ExecutionError> {
+        Ok(TrackerState { events: vec![] })
+    }
+
+    async fn handle_message(
+        state: &mut Self::State,
+        message: Self::Message,
+    ) -> Result<(), ExecutionError> {
+        state.events.push(message.event);
+        Ok(())
+    }
+}
+
+linera_sdk::contract!(Tracker);
